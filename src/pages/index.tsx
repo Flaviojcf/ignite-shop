@@ -1,11 +1,26 @@
-import { styled } from "../styles"
-
-const Button = styled('button',{
-  backgroundColor: '$rocketseat'
-})
+import Image from "next/future/image";
+import { HomeContainer, Product } from "../styles/pages/home";
+import shirt1 from "/public/Shirt-1.png";
+import shirt2 from "/public/Shirt-2.png";
+import shirt3 from "/public/Shirt-3.png";
 
 export default function Home() {
   return (
-    <Button>Enviar</Button>
-  )
+    <HomeContainer>
+      <Product>
+        <Image src={shirt1} width={520} height={520} alt="" />
+        <footer>
+          <strong>Camiseta 1</strong>
+          <span>R$ 79.90</span>
+        </footer>
+      </Product>
+      <Product>
+        <Image src={shirt2} width={520} height={520} alt="" />
+        <footer>
+          <strong>Camiseta 2</strong>
+          <span>R$ 79.90</span>
+        </footer>
+      </Product>
+    </HomeContainer>
+  );
 }
