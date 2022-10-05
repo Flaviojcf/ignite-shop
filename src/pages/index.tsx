@@ -1,6 +1,6 @@
 import Image from "next/future/image";
 import { useKeenSlider } from "keen-slider/react";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetStaticProps } from "next";
 import "keen-slider/keen-slider.min.css";
 import { HomeContainer, Product } from "../styles/pages/home";
 import shirt1 from "/public/Shirt-1.png";
@@ -24,7 +24,6 @@ export default function Home({ products }: HomeProps) {
       perView: 3,
       spacing: 48,
     },
-
   });
 
   return (
@@ -44,10 +43,10 @@ export default function Home({ products }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ["data.default_price"],
-    active:true
+    active: true,
   });
 
   const products = response.data.map((product) => {
@@ -56,13 +55,17 @@ export const getServerSideProps: GetServerSideProps = async () => {
       id: product.id,
       name: product.name,
       imageUrl: product.images[0],
-      price: price.unit_amount / 100,
+      price: new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(price.unit_amount / 100),
     };
   });
 
   return {
-    props:{
-      products
-    }
+    props: {
+      products,
+    },
+    revalidate: 60 * 60 * 2,
   };
 };
