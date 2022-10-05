@@ -1,6 +1,8 @@
+import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Image from "next/future/image";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import Stripe from "stripe";
 import { stripe } from "../../lib/stripe";
 import {
@@ -16,15 +18,31 @@ interface ProductProps {
     imageUrl: string;
     price: string;
     description: string;
-    defaultPriceId:string;
+    defaultPriceId: string;
   };
 }
 
 export default function Product({ product }: ProductProps) {
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
+    useState(false);
   const { isFallback } = useRouter();
 
   if (isFallback) {
     return <p>LOADING...</p>;
+  }
+
+  async function handleBuyShirt() {
+    try {
+      setIsCreatingCheckoutSession(true);
+      const response = await axios.post("/api/checkout", {
+        priceId: product.defaultPriceId,
+      });
+      const { checkoutUrl } = response.data;
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      setIsCreatingCheckoutSession(false);
+      alert("Falha ao redirecionar");
+    }
   }
 
   return (
@@ -37,7 +55,9 @@ export default function Product({ product }: ProductProps) {
         <h1>{product.name}</h1>
         <span>{product.price}</span>
         <p>{product.description}</p>
-        <button>Comprar Agora</button>
+        <button disabled={isCreatingCheckoutSession} onClick={handleBuyShirt}>
+          Comprar Agora
+        </button>
       </ProductDetails>
     </ProductContainer>
   );
