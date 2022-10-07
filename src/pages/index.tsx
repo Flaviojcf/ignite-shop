@@ -1,55 +1,103 @@
 import Image from "next/future/image";
-import { useKeenSlider } from "keen-slider/react";
+import useEmblaCarousel from "embla-carousel-react";
 import { GetStaticProps } from "next";
 import Head from "next/head";
-import "keen-slider/keen-slider.min.css";
-import { HomeContainer, Product } from "../styles/pages/home";
+
+import { HomeContainer, Product, SliderContainer } from "../styles/pages/home";
 
 import { stripe } from "../lib/stripe";
 import Stripe from "stripe";
 import Link from "next/link";
+import { Handbag } from "phosphor-react";
+import { useCart } from "../hooks/useCart";
+import { ProductProps } from "../context/CartContext";
+import { MouseEvent, useEffect, useState } from "react";
+import { ProductSkeleton } from "../components/ProductSkeleton/ProductSkeleton";
 
 interface HomeProps {
-  products: {
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: string;
-  }[];
+  products: ProductProps[];
 }
 
 export default function Home({ products }: HomeProps) {
-  const [sliderRef] = useKeenSlider({
-    slides: {
-      perView: 3,
-      spacing: 48,
-    },
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timeOut = setTimeout(() => setIsLoading(false), 2000);
+
+    return () => clearTimeout(timeOut);
+  }, []);
+  const [emblaRef] = useEmblaCarousel({
+    align: "start",
+    skipSnaps: false,
+    dragFree: true,
   });
+
+  const { addItemToCart, checkItemAlreadyExistInCart } = useCart();
+
+  function handleAddToCart(
+    e: MouseEvent<HTMLButtonElement>,
+    product: ProductProps
+  ) {
+    e.preventDefault();
+    addItemToCart(product);
+  }
 
   return (
     <>
       <Head>
         <title>Home | Ignite Shop</title>
       </Head>
-      <HomeContainer ref={sliderRef} className="keen-slider">
-        {products.map((product) => {
-          return (
-            <Link
-              key={product.id}
-              href={`/product/${product.id}`}
-              prefetch={false}
-            >
-              <Product className="keen-slider__slide">
-                <Image src={product.imageUrl} width={520} height={480} alt="" />
-                <footer>
-                  <strong>{product.name}</strong>
-                  <span>{product.price}</span>
-                </footer>
-              </Product>
-            </Link>
-          );
-        })}
-      </HomeContainer>
+      <div style={{ overflow: "hidden", width: "100%" }}>
+        <HomeContainer>
+          <div className="embla" ref={emblaRef}>
+            <SliderContainer className="embla__container container">
+              {isLoading ? (
+                <>
+                  <ProductSkeleton className="embla__slide" />
+                  <ProductSkeleton className="embla__slide" />
+                  <ProductSkeleton className="embla__slide" />
+                </>
+              ) : (
+                <>
+                  {products.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/product/${product.id}`}
+                      prefetch={false}
+                      passHref
+                    >
+                      <Product className="embla__slide">
+                        <Image
+                          src={product.imageUrl}
+                          width={520}
+                          height={480}
+                          alt=""
+                          placeholder="blur"
+                          blurDataURL={product.imageUrl}
+                        />
+
+                        <footer>
+                          <div>
+                            <strong>{product.name}</strong>
+                            <span>{product.price}</span>
+                          </div>
+                          <button
+                            color="green"
+                            disabled={checkItemAlreadyExistInCart(product.id)}
+                            onClick={(e) => handleAddToCart(e, product)}
+                          >
+                            <Handbag size={32} style={{color:"white"}} />
+                          </button>
+                        </footer>
+                      </Product>
+                    </Link>
+                  ))}
+                </>
+              )}
+            </SliderContainer>
+          </div>
+        </HomeContainer>
+      </div>
     </>
   );
 }
@@ -70,6 +118,8 @@ export const getStaticProps: GetStaticProps = async () => {
         style: "currency",
         currency: "BRL",
       }).format(price.unit_amount / 100),
+      numberPrice: price.unit_amount / 100,
+      defaultPriceId: price.id,
     };
   });
 

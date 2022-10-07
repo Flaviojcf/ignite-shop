@@ -2,10 +2,19 @@ import { styled } from "..";
 
 export const HomeContainer = styled("main", {
   display: "flex",
-  maxWidth: "calc(100vw - ((100vw - 1180px) / 2))",
-  width: "100%",
+  maxWidth: "90rem",
   marginLeft: "auto",
   minHeight: 656,
+  marginBottom: "auto",
+});
+
+export const SliderContainer = styled("div", {
+  display: "flex",
+  gap: "3rem",
+  marginBottom: "4rem",
+  ".embla__slide": {
+    minWidth: "43.5rem",
+  },
 });
 
 export const Product = styled("div", {
@@ -14,6 +23,8 @@ export const Product = styled("div", {
   cursor: "pointer",
   position: "relative",
   overflow: "hidden",
+  width: "100%",
+  minHeight: 656,
 
   display: "flex",
   alignItems: "center",
@@ -51,6 +62,32 @@ export const Product = styled("div", {
       fontSize: "$xl",
       fontWeight: "bold",
       color: "$green300",
+    },
+    "div:first-Child": {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.25rem",
+    },
+    "button:last-Child": {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      border: 'none',
+      padding: "12px",
+      gap: "12px",
+      width: "56px",
+      height: "56px",
+      background: "#00875F",
+      borderRadius: "6px",
+      transition: "background-color 0.5s",
+
+      "&:disabled": {
+        opacity: 0.6,
+        cursor: "not-allowed",
+      },
+      "&:not(:disabled):hover": {
+        background: "$green300",
+      },
     },
   },
 
