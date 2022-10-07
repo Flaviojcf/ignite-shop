@@ -78,9 +78,7 @@ export function Header() {
               <h2>Sacola de compras</h2>
 
               <section>
-                {cartItems.length <= 0 && (
-                  <p>Parece que seu carrinho está vazio : (</p>
-                )}
+                {cartItems.length <= 0 && <p>Carrinho sem itens</p>}
                 {cartItems.map((cartItem) => (
                   <CartProduct key={cartItem.id}>
                     <CartProductImage>
